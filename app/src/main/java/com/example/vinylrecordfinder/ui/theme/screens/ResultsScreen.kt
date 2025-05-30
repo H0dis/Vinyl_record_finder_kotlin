@@ -28,6 +28,7 @@ fun ResultsScreen(navController: NavController, query: String) {
     LaunchedEffect(query) {
         try {
             val response = RetrofitClient.api.searchAlbums(query, token)
+            println("API raspuns: ${response.results.size} albume") // debug in ...aia cu pisica
             albums = response.results
         } catch (e: Exception) {
             e.printStackTrace()

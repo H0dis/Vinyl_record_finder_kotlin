@@ -14,7 +14,9 @@ data class DiscogsAlbum(
     val thumb: String,
     val format: List<String>?,
     val label: List<String>?,
-    val resource_url: String? = null
+    val resource_url: String? = null,
+    val country: String? = null,
+    val year: Int? = null
 
 )
 

@@ -33,16 +33,14 @@ fun VinylNavGraph(navController: NavHostController = rememberNavController()) {
         composable("details?album={album}") { backStackEntry ->
             val json = backStackEntry.arguments?.getString("album") ?: ""
             val album = Gson().fromJson(Uri.decode(json), DiscogsAlbum::class.java)
-
-            // Vom adăuga gestionarea locală în pasul următor
-            DetailsScreen(
-                navController = navController,
-                album = album,
-                isFavorite = false,
-                onAddToFavorites = {},
-                onRemoveFromFavorites = {}
-            )
         }
+        composable("details?album={album}") { backStackEntry ->
+            val json = backStackEntry.arguments?.getString("album") ?: ""
+            val album = Gson().fromJson(Uri.decode(json), DiscogsAlbum::class.java)
+
+            DetailsScreen(navController = navController, album = album)
+        }
+
     }
 }
 
