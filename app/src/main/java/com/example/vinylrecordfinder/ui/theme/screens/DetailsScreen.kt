@@ -6,6 +6,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -16,7 +17,6 @@ import coil.compose.rememberAsyncImagePainter
 import com.example.vinylrecordfinder.data.local.FavoritesManager
 import com.example.vinylrecordfinder.data.remote.DiscogsAlbum
 import kotlinx.coroutines.launch
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -30,91 +30,97 @@ fun TopBarWithBack(title: String, onBackClick: () -> Unit) {
         }
     )
 }
+
 @Composable
-fun DetailsScreen(
-    navController: NavController,
-    album: DiscogsAlbum
-) {
+fun DetailsScreen(navController: NavController, album: DiscogsAlbum) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
-
     var isFavorite by remember { mutableStateOf(false) }
 
-    // Verificare dacA albumul e deja în favorite
+    // Verifică dacă e deja la favorite
     LaunchedEffect(Unit) {
-        FavoritesManager.isFavorite(context, album).let {
-            isFavorite = it
+        isFavorite = FavoritesManager.isFavorite(context, album)
+    }
+
+    Column(modifier = Modifier.fillMaxSize()) {
+        TopBarWithBack(title = "Detalii album") {
+            navController.popBackStack()
         }
-    }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(24.dp),
-        verticalArrangement = Arrangement.Top
-    ) { TopBarWithBack(title = "Detalii album") {
-        navController.popBackStack()
-    }
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Text(
-            text = "Detalii album",
-            style = MaterialTheme.typography.headlineMedium
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Image(
-            painter = rememberAsyncImagePainter(album.thumb),
-            contentDescription = album.title,
-            contentScale = ContentScale.Crop,
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .height(200.dp)
-        )
+                .fillMaxSize()
+                .padding(24.dp),
+            verticalArrangement = Arrangement.Top,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Image(
+                painter = rememberAsyncImagePainter(album.thumb),
+                contentDescription = album.title,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(200.dp)
+            )
 
-        Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
-        Text(
-            text = album.title,
-            style = MaterialTheme.typography.headlineSmall,
-            modifier = Modifier.fillMaxWidth(),
-            textAlign = TextAlign.Center
-        )
+            Text(
+                text = album.title,
+                style = MaterialTheme.typography.headlineSmall,
+                textAlign = TextAlign.Center
+            )
 
-        Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
-        Text("🎧 Format: ${album.format?.joinToString() ?: "-"}")
-        Text("🏷️ Label: ${album.label?.joinToString() ?: "-"}")
-        Text("🌍 Țara: ${album.country ?: "-"}")
-        Text("📅 An: ${album.year?.toString() ?: "-"}")
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        if (isFavorite) {
-            OutlinedButton(
-                onClick = {
-                    scope.launch {
-                        FavoritesManager.removeFavorite(context, album)
-                        isFavorite = false
-                    }
-                },
-                modifier = Modifier.fillMaxWidth()
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
-                Text("🗑 Scoate din favorite")
+                InfoRow("🎧 Format", album.format?.joinToString() ?: "-")
+                InfoRow("🏷️ Label", album.label?.joinToString() ?: "-")
+                InfoRow("🌍 Țara", album.country ?: "-")
+                InfoRow("📅 An", album.year?.toString() ?: "-")
             }
-        } else {
-            Button(
-                onClick = {
-                    scope.launch {
-                        FavoritesManager.addFavorite(context, album)
-                        isFavorite = true
-                    }
-                },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("⭐ Adaugă la favorite")
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            if (isFavorite) {
+                OutlinedButton(
+                    onClick = {
+                        scope.launch {
+                            FavoritesManager.removeFavorite(context, album)
+                            isFavorite = false
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("🗑 Scoate din favorite")
+                }
+            } else {
+                Button(
+                    onClick = {
+                        scope.launch {
+                            FavoritesManager.addFavorite(context, album)
+                            isFavorite = true
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("⭐ Adaugă la favorite")
+                }
             }
         }
+    }
+}
+
+@Composable
+fun InfoRow(label: String, value: String) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text(text = label, style = MaterialTheme.typography.bodyMedium)
+        Text(text = value, style = MaterialTheme.typography.bodyMedium)
     }
 }
