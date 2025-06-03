@@ -1,8 +1,9 @@
 package com.example.vinylrecordfinder.ui.theme.screens
 
-
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -16,6 +17,19 @@ import com.example.vinylrecordfinder.data.local.FavoritesManager
 import com.example.vinylrecordfinder.data.remote.DiscogsAlbum
 import kotlinx.coroutines.launch
 
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun TopBarWithBack(title: String, onBackClick: () -> Unit) {
+    TopAppBar(
+        title = { Text(title) },
+        navigationIcon = {
+            IconButton(onClick = onBackClick) {
+                Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, contentDescription = "Înapoi")
+            }
+        }
+    )
+}
 @Composable
 fun DetailsScreen(
     navController: NavController,
@@ -26,7 +40,7 @@ fun DetailsScreen(
 
     var isFavorite by remember { mutableStateOf(false) }
 
-    // Citire initială din DataStore
+    // Verificare dacA albumul e deja în favorite
     LaunchedEffect(Unit) {
         FavoritesManager.isFavorite(context, album).let {
             isFavorite = it
@@ -38,7 +52,18 @@ fun DetailsScreen(
             .fillMaxSize()
             .padding(24.dp),
         verticalArrangement = Arrangement.Top
-    ) {
+    ) { TopBarWithBack(title = "Detalii album") {
+        navController.popBackStack()
+    }
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Text(
+            text = "Detalii album",
+            style = MaterialTheme.typography.headlineMedium
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
         Image(
             painter = rememberAsyncImagePainter(album.thumb),
             contentDescription = album.title,
@@ -57,10 +82,12 @@ fun DetailsScreen(
             textAlign = TextAlign.Center
         )
 
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(12.dp))
 
-        Text(text = "Format: ${album.format?.joinToString() ?: "-"}")
-        Text(text = "Label: ${album.label?.joinToString() ?: "-"}")
+        Text("🎧 Format: ${album.format?.joinToString() ?: "-"}")
+        Text("🏷️ Label: ${album.label?.joinToString() ?: "-"}")
+        Text("🌍 Țara: ${album.country ?: "-"}")
+        Text("📅 An: ${album.year?.toString() ?: "-"}")
 
         Spacer(modifier = Modifier.height(24.dp))
 
@@ -86,9 +113,8 @@ fun DetailsScreen(
                 },
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("⭐ Adauga la favorite")
+                Text("⭐ Adaugă la favorite")
             }
         }
     }
 }
-

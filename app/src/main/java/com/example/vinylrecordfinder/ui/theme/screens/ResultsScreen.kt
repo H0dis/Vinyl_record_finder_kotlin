@@ -1,4 +1,4 @@
-package com.example.vinylrecordfinder.ui.screens
+package com.example.vinylrecordfinder.ui.theme.screens
 
 import android.net.Uri
 import androidx.compose.foundation.Image
@@ -23,12 +23,11 @@ fun ResultsScreen(navController: NavController, query: String) {
     var albums by remember { mutableStateOf<List<DiscogsAlbum>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
 
-    val token = "SpQReYYOIBOiedmRwftybayRAGZVNNxAFmPCcAOo" // Tokenul tău Discogs
+    val token = "cqNCTHYUoBrAahVpJVPAQmgEeEoSbBhqlUwZdNIK"
 
     LaunchedEffect(query) {
         try {
             val response = RetrofitClient.api.searchAlbums(query, token)
-            println("API raspuns: ${response.results.size} albume") // debug in ...aia cu pisica
             albums = response.results
         } catch (e: Exception) {
             e.printStackTrace()
@@ -37,41 +36,68 @@ fun ResultsScreen(navController: NavController, query: String) {
         }
     }
 
-    if (isLoading) {
-        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            CircularProgressIndicator()
+    when {
+        isLoading -> {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator()
+            }
         }
-    } else {
-        LazyColumn(modifier = Modifier.padding(16.dp)) {
-            items(albums) { album ->
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 8.dp)
-                        .clickable {
-                            val albumJson = Uri.encode(Gson().toJson(album))
-                            navController.navigate("details?album=$albumJson")
+        albums.isEmpty() -> {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                Text("Nu s-au găsit rezultate pentru „$query”.")
+            }
+        }
+        else -> {
+            LazyColumn(modifier = Modifier.padding(16.dp)) {
+                items(albums) { album ->
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp)
+                            .clickable {
+                                val albumJson = Uri.encode(Gson().toJson(album))
+                                navController.navigate("details?album=$albumJson")
+                            },
+                        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(12.dp)
+                        ) {
+                            Image(
+                                painter = rememberAsyncImagePainter(album.thumb),
+                                contentDescription = album.title,
+                                modifier = Modifier
+                                    .size(72.dp)
+                                    .aspectRatio(1f),
+                                contentScale = ContentScale.Crop
+                            )
+
+                            Spacer(modifier = Modifier.width(12.dp))
+
+                            Column(
+                                modifier = Modifier.weight(1f)
+                            ) {
+                                Text(
+                                    text = album.title,
+                                    style = MaterialTheme.typography.titleMedium
+                                )
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Text(
+                                    text = "Format: ${album.format?.joinToString() ?: "-"}",
+                                    style = MaterialTheme.typography.bodySmall
+                                )
+                                album.label?.let {
+                                    Text(
+                                        text = "Label: ${it.joinToString()}",
+                                        style = MaterialTheme.typography.bodySmall
+                                    )
+                                }
+                            }
                         }
-                ) {
-                    Image(
-                        painter = rememberAsyncImagePainter(album.thumb),
-                        contentDescription = album.title,
-                        modifier = Modifier.size(64.dp),
-                        contentScale = ContentScale.Crop
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Column {
-                        Text(
-                            text = album.title,
-                            style = MaterialTheme.typography.bodyLarge
-                        )
-                        Text(
-                            text = album.format?.joinToString() ?: "",
-                            style = MaterialTheme.typography.bodySmall
-                        )
                     }
                 }
-                Divider()
             }
         }
     }

@@ -24,6 +24,8 @@ interface DiscogsApi {
     @GET("database/search")
     suspend fun searchAlbums(
         @Query("q") query: String,
-        @Query("token") token: String
+        @Query("token") token: String,
+//        @Query("country") country: String? = null,
+//        @Query("year") year: String? = null
     ): DiscogsResponse
 }

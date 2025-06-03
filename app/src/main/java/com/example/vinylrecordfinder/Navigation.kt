@@ -6,19 +6,14 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.vinylrecordfinder.ui.screens.ResultsScreen
+import com.example.vinylrecordfinder.ui.theme.screens.ResultsScreen
 import com.example.vinylrecordfinder.ui.theme.screens.SearchScreen
 import com.google.gson.Gson
 import com.example.vinylrecordfinder.data.remote.DiscogsAlbum
 import com.example.vinylrecordfinder.ui.theme.screens.DetailsScreen
+import com.example.vinylrecordfinder.ui.theme.screens.FavoritesScreen
 
-sealed class Screen(val route: String) {
-    object Search : Screen("search")
-    object Results : Screen("results")
-    object Details : Screen("details")
-    object Favorites : Screen("favorites")
-    object Settings : Screen("settings")
-}
+
 
 @Composable
 fun VinylNavGraph(navController: NavHostController = rememberNavController()) {
@@ -40,6 +35,10 @@ fun VinylNavGraph(navController: NavHostController = rememberNavController()) {
 
             DetailsScreen(navController = navController, album = album)
         }
+        composable(Screen.Favorites.route) {
+            FavoritesScreen(navController)
+        }
+
 
     }
 }
