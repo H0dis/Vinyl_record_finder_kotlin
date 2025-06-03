@@ -49,7 +49,7 @@ fun ResultsScreen(navController: NavController, query: String) {
         }
         else -> {
             LazyColumn(modifier = Modifier.padding(16.dp)) {
-                items(albums) { album ->
+                items(albums.filter { it.title.isNotBlank() && (it.format != null || it.label != null || it.year != null) }) { album ->
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -58,41 +58,49 @@ fun ResultsScreen(navController: NavController, query: String) {
                                 val albumJson = Uri.encode(Gson().toJson(album))
                                 navController.navigate("details?album=$albumJson")
                             },
-                        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+                        shape = MaterialTheme.shapes.medium
                     ) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(12.dp)
-                        ) {
+                        Row(modifier = Modifier.padding(12.dp)) {
                             Image(
                                 painter = rememberAsyncImagePainter(album.thumb),
                                 contentDescription = album.title,
                                 modifier = Modifier
                                     .size(72.dp)
-                                    .aspectRatio(1f),
+                                    .padding(end = 12.dp),
                                 contentScale = ContentScale.Crop
                             )
-
-                            Spacer(modifier = Modifier.width(12.dp))
-
-                            Column(
-                                modifier = Modifier.weight(1f)
-                            ) {
+                            Column(modifier = Modifier.fillMaxWidth()) {
                                 Text(
                                     text = album.title,
                                     style = MaterialTheme.typography.titleMedium
                                 )
-                                Spacer(modifier = Modifier.height(4.dp))
-                                Text(
-                                    text = "Format: ${album.format?.joinToString() ?: "-"}",
-                                    style = MaterialTheme.typography.bodySmall
-                                )
-                                album.label?.let {
-                                    Text(
-                                        text = "Label: ${it.joinToString()}",
-                                        style = MaterialTheme.typography.bodySmall
-                                    )
+
+                                if (!album.format.isNullOrEmpty()) {
+                                    Row {
+                                        Text("Format: ", style = MaterialTheme.typography.bodyMedium)
+                                        Text(album.format.joinToString(), style = MaterialTheme.typography.bodyMedium)
+                                    }
+                                }
+
+                                if (!album.label.isNullOrEmpty()) {
+                                    Row {
+                                        Text("Label: ", style = MaterialTheme.typography.bodyMedium)
+                                        Text(album.label.joinToString(), style = MaterialTheme.typography.bodyMedium)
+                                    }
+                                }
+
+                                if (!album.country.isNullOrBlank()) {
+                                    Row {
+                                        Text("Țara: ", style = MaterialTheme.typography.bodyMedium)
+                                        Text(album.country, style = MaterialTheme.typography.bodyMedium)
+                                    }
+                                }
+
+                                if (album.year != null) {
+                                    Row {
+                                        Text("An: ", style = MaterialTheme.typography.bodyMedium)
+                                        Text(album.year.toString(), style = MaterialTheme.typography.bodyMedium)
+                                    }
                                 }
                             }
                         }
@@ -100,5 +108,5 @@ fun ResultsScreen(navController: NavController, query: String) {
                 }
             }
         }
-    }
+   }
 }

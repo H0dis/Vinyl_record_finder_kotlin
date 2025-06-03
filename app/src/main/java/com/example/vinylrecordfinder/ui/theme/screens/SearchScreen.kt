@@ -16,6 +16,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.vinylrecordfinder.Screen
 
+
 @Composable
 fun SearchScreen(navController: NavController) {
     var query by remember { mutableStateOf("") }
@@ -70,6 +71,13 @@ fun SearchScreen(navController: NavController) {
             Spacer(modifier = Modifier.width(8.dp))
             Text("Cauta")
         }
+        Text(
+            text = "© Hodis Florin",
+            style = MaterialTheme.typography.bodySmall,
+            modifier = Modifier
+                //.align(Alignment.BottomCenter)
+                .padding(16.dp)
+        )
     }
 }
 @SuppressLint("ServiceCast")
